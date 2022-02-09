@@ -220,7 +220,7 @@ const GroupInitiative = (() => { // eslint-disable-line no-unused-vars
         return _.reduce(l,function(m,s){
             var type= ('gmlayer' === s.token.get('layer') ?
                 'gmlayer' : (
-                    (s.character && _.filter(s.character.get('controlledby').split(/,/),function(c){ 
+                    (s.character && _.filter(s.character.get('controlledby').split(/,/),function(c){
                         return 'all' === c || ('' !== c && !playerIsGM(c) );
                     }).length>0) || false ?
                         'character' :
@@ -355,6 +355,13 @@ const GroupInitiative = (() => { // eslint-disable-line no-unused-vars
             },
             desc: 'Rounds up to the nearest integer.'
         },
+        'tie-breaker-token_bar': {
+            type: adjustments.TOKEN,
+            func: function(t, idx) {
+                return 0.01*(parseFloat(t.get(`bar${idx}_value`))||0);
+            },
+            desc: 'Apply the bonus from the numbered bar on the token as a decimal (0.01), Defaults to 0 in the absence of a number'
+        },
         'token_bar': {
             type: adjustments.TOKEN,
             func: function(t,idx) {
@@ -387,7 +394,7 @@ const GroupInitiative = (() => { // eslint-disable-line no-unused-vars
                 stat = stat.replace(/@\{([^|]*?|[^|]*?\|max|[^|]*?\|current)\}/g, '@{'+(s.character.get('name'))+'|$1}');
                 return '('+stat+')d'+state[scriptName].config.dieSize;
             }
-        } 
+        }
         return state[scriptName].config.diceCount+'d'+state[scriptName].config.dieSize+state[scriptName].config.diceMod;
     };
 
@@ -406,7 +413,7 @@ const GroupInitiative = (() => { // eslint-disable-line no-unused-vars
                 var min=_.reduce(l,function(m,r){
                     if(!m || (r.total < m.total)) {
                         return r;
-                    } 
+                    }
                     return m;
                 },false);
                 return _.times(l.length, function(){
@@ -468,7 +475,7 @@ const GroupInitiative = (() => { // eslint-disable-line no-unused-vars
       }
     };
 
-    const checkInstall = function() {    
+    const checkInstall = function() {
         log(`-=> ${scriptName} v${version} <=-  [${new Date(lastUpdate*1000)}]`);
 
         if( ! _.has(state,scriptName) || state[scriptName].version !== schemaVersion) {
@@ -498,7 +505,7 @@ const GroupInitiative = (() => { // eslint-disable-line no-unused-vars
                     state[scriptName].config.diceCount = 1;
                     state[scriptName].config.maxDecimal = 2;
                     /* break; // intentional dropthrough */ /* falls through */
-                    
+
                 case 0.9:
                     state[scriptName].config.diceCountAttribute = '';
                     /* break; // intentional dropthrough */ /* falls through */
@@ -986,7 +993,7 @@ const _h = {
                 _h.title(scriptName, version),
                 helpParts.configuration(context)
             )
-        
+
     };
 
     const showHelp = (playerid) => {
@@ -1016,7 +1023,7 @@ const _h = {
                 } else {
                     statName=parts[0];
                 }
-                
+
                 return `@{${charName}|${statName}${modName?`|${modName}`:''}}`;
             })
             .replace(/&{tracker}/,'');
@@ -1351,7 +1358,7 @@ const _h = {
                                         ds%=60;
                                     }
                                     str.push(`${Math.round(ds)}s`);
-                                    
+
                                     return str.join(' ');
                                 },
                                 stackrecord=function(label){
@@ -1366,8 +1373,8 @@ const _h = {
                                             })
                                             .map((o)=>{
                                                 return {
-                                                    img: (o.token ? o.token.get('imgsrc') : ''), 
-                                                    name: (o.token ? o.token.get('name') : o.entry.custom), 
+                                                    img: (o.token ? o.token.get('imgsrc') : ''),
+                                                    name: (o.token ? o.token.get('name') : o.entry.custom),
                                                     pr: o.entry.pr
                                                 };
                                             })
@@ -1458,7 +1465,7 @@ const _h = {
                                     }
                                     break;
                                 case 'swap':
-                                    
+
                                     if(state[scriptName].savedTurnOrders.length){
                                         let sto=state[scriptName].savedTurnOrders.shift();
                                         state[scriptName].savedTurnOrders.unshift(stackrecord(cmds.join(' ')));
@@ -1481,7 +1488,7 @@ const _h = {
                                 case 'apply-merge':
                                     if(state[scriptName].savedTurnOrders.length){
                                         let sto=state[scriptName].savedTurnOrders[0];
-                                        
+
                                         Campaign().set('turnorder', JSON.stringify(
                                             sorters[state[scriptName].config.sortOption].func(
                                                 _.union(
@@ -1499,7 +1506,7 @@ const _h = {
                                 case 'merge':
                                     if(state[scriptName].savedTurnOrders.length){
                                         let sto=state[scriptName].savedTurnOrders.pop();
-                                        
+
                                         Campaign().set('turnorder', JSON.stringify(
                                             sorters[state[scriptName].config.sortOption].func(
                                                 _.union(
@@ -1626,7 +1633,7 @@ const _h = {
                                 manualBonus=parseFloat(cmds[1]);
                                 manualBonusMin=parseFloat(cmds[2]);
                                 manualBonusMin=_.isNaN(manualBonusMin)?-10000:manualBonusMin;
-                                
+
                                 Campaign().set({
                                     turnorder: JSON.stringify(
                                         _.map(JSON.parse(Campaign().get('turnorder'))||[], function(e){
@@ -1655,7 +1662,7 @@ const _h = {
                                 manualBonus=parseFloat(cmds[1]);
                                 manualBonusMin=parseFloat(cmds[2]);
                                 manualBonusMin=_.isNaN(manualBonusMin)?-10000:manualBonusMin;
-                                
+
                                 Campaign().set({
                                     turnorder: JSON.stringify(
                                         _.map(JSON.parse(Campaign().get('turnorder'))||[], function(e,idx){
@@ -1915,7 +1922,7 @@ const _h = {
                                 '<div><b>Unsupported Option:</div> '+a+'</div>'
                             );
                     }
-                            
+
                 });
 
                 break;
